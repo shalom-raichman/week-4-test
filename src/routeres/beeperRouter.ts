@@ -70,7 +70,6 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
     }
 })
 
-// get beeper by status
 router.get("/:id/status", async (req: Request, res: Response): Promise<void> => {
     try {
         
@@ -107,19 +106,23 @@ router.delete("/", async (req: Request, res: Response): Promise<void> => {
     }
 })
 
+// get beeper by status
 router.get("/status/:status", async (req: Request, res: Response): Promise<void> => {
     try {
-        
+        const beepers: Beeper[] = await getFileData("beepers") as Beeper[]
+        if(!beepers) throw new Error("Cent get data from file")
+        const result: Beeper[] = beepers.filter(b => b.status == req.params.status) as Beeper[]
+        if(result.length == 0) throw new Error("no beeper maetch");
         res.status(200).json({
             err: false,
-            message: "I was way to lazy to change the defult message",
-            data: undefined
+            message: "here is the requested beeper",
+            data: result
         })       
     } catch (err) {
         res.status(400)
         res.json({
             err: true,
-            message: "I was way to lazy to change the defult message",
+            message: (err as Error).message,
             data: null
         })
     }
