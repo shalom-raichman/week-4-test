@@ -14,7 +14,7 @@ export default class BeeperService {
         const { name } = newBeeper
         if(!name) throw new Error("name has not provided ");
         const beeper: Beeper = new Beeper(
-            name, "manufactured", beepers.length
+            name, Status.manufactured, beepers.length
         )
 
         // push
