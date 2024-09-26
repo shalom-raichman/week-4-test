@@ -1,20 +1,25 @@
 import express, { Router, Request, Response }  from "express"
+import NewBeeperDTO from "../DTO/newBeeper"
+import BeeperService from "../services/beeperService"
 
 const router: Router = express.Router()
 
-router.post("/", async (req: Request, res: Response): Promise<void> => {
+router.post("/", async (
+    req: Request<any, any, NewBeeperDTO>,
+     res: Response): Promise<void> => {
     try {
-        
+        const result: boolean = await BeeperService.createNewBeeper(req.body)
+        if(!result) throw new Error("cant save New Beeper in file");
         res.status(200).json({
             err: false,
-            message: "I was way to lazy to change the defult message",
-            data: undefined
+            message: "Beeper created successfuly",
+            data: req.body
         })       
     } catch (err) {
         res.status(400)
         res.json({
             err: true,
-            message: "I was way to lazy to change the defult message",
+            message: (err as Error).message,
             data: null
         })
     }
