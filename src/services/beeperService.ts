@@ -1,5 +1,6 @@
 import { getFileData, saveFileData } from "../dal/fileDAL"
 import NewBeeperDTO from "../DTO/newBeeper"
+import { Status } from "../enums/statusEnum"
 import Beeper from "../models/beeper"
 
 
@@ -14,7 +15,7 @@ export default class BeeperService {
         const { name } = newBeeper
         if(!name) throw new Error("name has not provided ");
         const beeper: Beeper = new Beeper(
-            name, Status.manufactured, beepers.length
+            name, Status.manufactured, Number(Math.random().toString().split(".")[1])
         )
 
         // push
