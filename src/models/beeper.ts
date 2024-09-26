@@ -2,7 +2,7 @@ class Beeper{
     public detonated_at?: Date
     public created_at: Date
     public latitude?: number
-    public logitude? :number
+    public longitude? :number
     constructor(
         public name: string,
         public status: string,

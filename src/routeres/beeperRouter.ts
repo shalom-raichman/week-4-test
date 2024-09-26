@@ -87,27 +87,24 @@ router.put("/:id/status", async (
         if(!beepers[beeperToUpdateIndex]) throw new Error("beeper not found");
 
         // destracting req body
-        const {status, latitude, logitude} = req.body
+        const {status, latitude, longitude} = req.body
 
         // change beeper status
         beepers[beeperToUpdateIndex].status = status
-        console.log(status);
-        console.log(latitude);
-        console.log(logitude);
-        
         
         // save the filterd data back to the file
         const isUpdated: boolean = await saveFileData("beepers", beepers)
         if(!isUpdated) throw new Error("could not update beeper");       
 
-        if(status == Status.deployed && latitude && logitude) {
-            console.log("inter the condition");
-            
+        if(status == Status.deployed && latitude && longitude) {
+            if(latitude > 34.6793 || latitude < 33.0104 || longitude > 36.59793 || longitude < 35.04438)
+                {
+                    throw new Error("you ar trying to start a war in th middleest")
+                } 
             beepers[beeperToUpdateIndex].latitude = latitude
-            beepers[beeperToUpdateIndex].logitude = logitude
+            beepers[beeperToUpdateIndex].longitude = longitude
             setTimeout(() => deployBeeper(beepers[beeperToUpdateIndex]), 10000)
         }
-        console.log("after the con");
         
         res.status(200).json({
             err: false,
