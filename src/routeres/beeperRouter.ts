@@ -4,6 +4,8 @@ import BeeperService from "../services/beeperService"
 import Beeper from "../models/beeper"
 import { getFileData, saveFileData } from "../dal/fileDAL"
 import DeployedReq from "../DTO/deployedReq"
+import deployBeeper from "../services/statusService"
+import { Status } from "../enums/statusEnum"
 
 const router: Router = express.Router()
 
@@ -72,10 +74,56 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
 })
 
 // change beeper status
-router.get("/:id/status", async (
+router.put("/:id/status", async (
     req: Request<any, any, DeployedReq>,
     res: Response): Promise<void> => {
-    
+    try {
+        // get all beepers
+        const beepers: Beeper[] = await getFileData("beepers") as Beeper[]
+        if(!beepers) throw new Error("Cent get data from file")
+
+        // find the beeper by id
+        const beeperToUpdateIndex: number = beepers.findIndex(b => b.id == Number(req.params.id))
+        if(!beepers[beeperToUpdateIndex]) throw new Error("beeper not found");
+
+        // destracting req body
+        const {status, latitude, logitude} = req.body
+
+        // change beeper status
+        beepers[beeperToUpdateIndex].status = status
+        console.log(status);
+        console.log(latitude);
+        console.log(logitude);
+        
+        
+        // save the filterd data back to the file
+        const isUpdated: boolean = await saveFileData("beepers", beepers)
+        if(!isUpdated) throw new Error("could not update beeper");       
+
+        if(status == Status.deployed && latitude && logitude) {
+            console.log("inter the condition");
+            
+            beepers[beeperToUpdateIndex].latitude = latitude
+            beepers[beeperToUpdateIndex].logitude = logitude
+            setTimeout(() => deployBeeper(beepers[beeperToUpdateIndex]), 10000)
+        }
+        console.log("after the con");
+        
+        res.status(200).json({
+            err: false,
+            message: "status changed successfuly",
+            data: beepers[beeperToUpdateIndex]
+        })       
+    } catch (err) {
+        console.log(err);
+        
+        res.status(400)
+        res.json({
+            err: true,
+            message: (err as Error).message,
+            data: null
+        })
+    }
 })
 
 // delete by id
