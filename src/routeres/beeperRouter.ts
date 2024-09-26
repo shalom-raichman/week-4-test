@@ -1,9 +1,12 @@
 import express, { Router, Request, Response }  from "express"
 import NewBeeperDTO from "../DTO/newBeeper"
 import BeeperService from "../services/beeperService"
+import Beeper from "../models/beeper"
+import { getFileData } from "../dal/fileDAL"
 
 const router: Router = express.Router()
 
+// create new beeper
 router.post("/", async (
     req: Request<any, any, NewBeeperDTO>,
      res: Response): Promise<void> => {
@@ -25,19 +28,21 @@ router.post("/", async (
     }
 })
 
+// get all beepers
 router.get("/", async (req: Request, res: Response): Promise<void> => {
     try {
-        
+        const beepers: Beeper[] = await getFileData("beepers") as Beeper[]
+        if(!beepers) throw new Error("Cent get data from file")
         res.status(200).json({
             err: false,
-            message: "I was way to lazy to change the defult message",
-            data: undefined
+            message: "here is all the beepers saved in file",
+            data: beepers
         })       
     } catch (err) {
         res.status(400)
         res.json({
             err: true,
-            message: "I was way to lazy to change the defult message",
+            message: (err as Error).message,
             data: null
         })
     }
