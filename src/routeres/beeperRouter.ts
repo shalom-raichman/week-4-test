@@ -2,7 +2,8 @@ import express, { Router, Request, Response }  from "express"
 import NewBeeperDTO from "../DTO/newBeeper"
 import BeeperService from "../services/beeperService"
 import Beeper from "../models/beeper"
-import { getFileData } from "../dal/fileDAL"
+import { getFileData, saveFileData } from "../dal/fileDAL"
+import DeployedReq from "../DTO/deployedReq"
 
 const router: Router = express.Router()
 
@@ -70,39 +71,34 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
     }
 })
 
-router.get("/:id/status", async (req: Request, res: Response): Promise<void> => {
-    try {
-        
-        res.status(200).json({
-            err: false,
-            message: "I was way to lazy to change the defult message",
-            data: undefined
-        })       
-    } catch (err) {
-        res.status(400)
-        res.json({
-            err: true,
-            message: "I was way to lazy to change the defult message",
-            data: null
-        })
-    }
+// change beeper status
+router.get("/:id/status", async (
+    req: Request<any, any, DeployedReq>,
+    res: Response): Promise<void> => {
+    
 })
-
-
-
-// need testing
 
 // delete by id
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
     try {
+        // get all beepers
         const beepers: Beeper[] = await getFileData("beepers") as Beeper[]
         if(!beepers) throw new Error("Cent get data from file")
-        const result: Beeper[] = beepers.filter(b => b.id == Number(req.params.id)) as Beeper[]
-        if(!result.length) throw new Error("beeper not found");
+        
+        const beeperToDelete: Beeper = beepers.find(b => b.id == Number(req.params.id)) as Beeper
+        if(!beeperToDelete) throw new Error("could not find the beeper to delete");
+
+        // filter the beeper to delet out
+        const result: Beeper[] = beepers.filter(b => b.id != Number(req.params.id)) as Beeper[]
+
+        // save the filterd data back to the file
+        const isDeleted: boolean = await saveFileData("beepers", result)
+        if(!isDeleted) throw new Error("could not delete beeper");
+
         res.status(200).json({
             err: false,
-            message: "here is the requested beeper",
-            data: result
+            message: `beeper ${beeperToDelete.name} deleted successfuly`,
+            data: beeperToDelete
         })       
     } catch (err) {
         res.status(400)
