@@ -88,19 +88,27 @@ router.get("/:id/status", async (req: Request, res: Response): Promise<void> => 
     }
 })
 
-router.delete("/", async (req: Request, res: Response): Promise<void> => {
+
+
+// need testing
+
+// delete by id
+router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
     try {
-        
+        const beepers: Beeper[] = await getFileData("beepers") as Beeper[]
+        if(!beepers) throw new Error("Cent get data from file")
+        const result: Beeper[] = beepers.filter(b => b.id == Number(req.params.id)) as Beeper[]
+        if(!result.length) throw new Error("beeper not found");
         res.status(200).json({
             err: false,
-            message: "I was way to lazy to change the defult message",
-            data: undefined
+            message: "here is the requested beeper",
+            data: result
         })       
     } catch (err) {
         res.status(400)
         res.json({
             err: true,
-            message: "I was way to lazy to change the defult message",
+            message: (err as Error).message,
             data: null
         })
     }
