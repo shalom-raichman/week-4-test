@@ -10,6 +10,6 @@ app.use(express.json())
 
 app.use("/api/beepers", router)
 
-app.listen(process.env.PORT, (): void => console.log(`See you at http://localhost:${process.env.PORT}`))
+app.listen(process.env.PORT || 7499, (): void => console.log(`See you at http://localhost:${process.env.PORT || 7499}`))
 
 
